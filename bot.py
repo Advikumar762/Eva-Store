@@ -4,7 +4,6 @@ from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, UsernameI
 from info import ADMINS, LOG_CHANNEL, FILE_STORE_CHANNEL, PUBLIC_FILE_STORE
 from database.ia_filterdb import unpack_new_file_id
 from utils import temp
-import re
 import os
 import json
 import base64
@@ -155,22 +154,25 @@ async def gen_link_batch(bot, message):
 
 @Client.on_message(filters.command(['json', 'j']) & filters.create(allowed))
 async def json(bot, message):
-    if message.text.lower().strip() == ["/json" or "/j"]:
-        json_file_path = f"batchmode_{message.from_user.id}.json"
-        txt_file_path = f"batchmode_{message.from_user.id}.txt"
+    replied = message.reply_to_message
+    if not replied:
+        return await message.reply('Reply to a message to get a shareable link.')
+
+    json_file_path = f"batchmode_{message.from_user.id}.json"
+    txt_file_path = f"batchmode_{message.from_user.id}.txt"
         
-        try:
-            with open(json_file_path, "r") as json_file:
-                data = json.load(json_file)
+    try:
+        with open(msg.media, "r") as json_file:
+            data = json.load(json_file)
 
-            with open(txt_file_path, "w+") as txt_file:
-                for item in data:
-                    txt_file.write(json.dumps(item) + '\n')
+        with open(txt_file_path, "w+") as txt_file:
+            for item in data:
+                txt_file.write(json.dumps(item) + '\n')
 
-            # Remove the JSON file
-            os.remove(json_file_path)
-        except Exception as e:
-            print(f"Error converting JSON to TXT: {e}")
+        # Remove the JSON file
+        os.remove(json_file_path)
+    except Exception as e:
+        print(f"Error converting JSON to TXT: {e}")
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
