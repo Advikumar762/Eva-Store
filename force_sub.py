@@ -9,11 +9,10 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 
 async def get_invite_link(bot: Client, chat_id: Union[str, int]):
     if (await is_invite_link(chat_id)):
-        invite_link = await invite_link(chat_id)
-        break
+        invite_link = await db.invite_link(chat_id, True, f'Invite Link by: {BOT_USERNAME}')
     else:
         try:
-            invite_link = await bot.create_chat_invite_link(chat_id=chat_id)
+            invite_link = await bot.create_chat_invite_link(chat_id=chat_id, creates_join_request=True, name=f'Invite Link by: {BOT_USERNAME}')
             return invite_link
         except FloodWait as e:
             print(f"Sleep of {e.value}s caused by FloodWait ...")
@@ -38,7 +37,7 @@ async def handle_force_sub(bot: Client, cmd: Message):
             return 400
     except UserNotParticipant:
         try:
-            invite_link = await get_invite_link(bot, chat_id=channel_chat_id)
+            invite_link = await db.get_invite_link(channel_chat_id)
         except Exception as err:
             print(f"Unable to do Force Subscribe to {UPDATES_CHANNEL}\n\nError: {err}")
             return 200
