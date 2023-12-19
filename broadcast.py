@@ -1,5 +1,4 @@
 from time import time
-from uuid import uuid4
 from asyncio import sleep
 from pyrogram.handlers import MessageHandler
 from pyrogram.filters import command
